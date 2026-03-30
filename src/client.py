@@ -18,5 +18,5 @@ while True:
         if (cmd == "quit"):
             break
         server_res = str(s.recv(1024), "utf-8")
-        print("Server output: ")
-        print(server_res, end="")
+        if server_res != "\n":
+            print(server_res, end="")
