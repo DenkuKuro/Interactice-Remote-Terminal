@@ -119,26 +119,26 @@ python src/client.py
 
 ## **5\. Technical Protocol Details (Plain-Text over TCP)**
 
-* **Connection**
-	* The client connects to the server using TCP
-	* Server binds to host and port (from `.env` file) and listens for incoming connection
-	* Client connects using same host and port
-	* Server acknowledges connection by sending current working directory (CWD) to client
+**Connection**
+* The client connects to the server using TCP
+* Server binds to host and port (from `.env` file) and listens for incoming connection
+* Client connects using same host and port
+* Server acknowledges connection by sending current working directory (CWD) to client
 
-* **Message Format**
-	* All messages are plain UTF-8 text
-	* Client commands are sent as strings
-	* Server responses are stdout/stderr output from executing commands
+**Message Format**
+* All messages are plain UTF-8 text
+* Client commands are sent as strings
+* Server responses are stdout/stderr output from executing commands
 
-* **Flow**
-	* 1. Server sends CWD -> Client displays prompt
-	* 2. Client sends command -> Server executes
-	* 3. Server sends output -> Client prints output
-	* 4. Repeat until client sends `"quit"` or connection is closed
+**Flow**
+* 1. Server sends CWD -> Client displays prompt
+* 2. Client sends command -> Server executes
+* 3. Server sends output -> Client prints output
+* 4. Repeat until client sends `"quit"` or connection is closed
 
-* **Disconnect Handling**
-	* If client disconnects unexpectedly, the server detects a broken socket and closes the session
-	* If server shuts down, the client receives no data and prints `"Server disconnected."`
+**Disconnect Handling**
+* If client disconnects unexpectedly, the server detects a broken socket and closes the session
+* If server shuts down, the client receives no data and prints `"Server disconnected."`
 
 
 
