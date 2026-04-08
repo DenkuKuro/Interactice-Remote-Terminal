@@ -13,6 +13,7 @@ port = int(os.getenv("PORT"))
 try:
     s.connect((host, port))
     print(f"Connected to server at {host}:{port}")
+    print("Welcome! ☺︎")
 except socket.error as e:
     print(f"Error connecting to server: {e}")
     exit()
