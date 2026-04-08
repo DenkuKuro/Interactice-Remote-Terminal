@@ -21,7 +21,7 @@ This project is a socket-based remote terminal application that lets a client co
 As required by the project specifications, we have identified and handled (or defined) the following limitations and potential issues within our application scope:
 
 * **Single Client Limitation:**
-  * **Limitation:** Server handles only one client at a time. If multiple clients try to connect simultaneously, others must wait.
+  * **Limitation:** Server accepts one client session, then exits after that client disconnects. Additional clients cannot connect until the server is started again.
   * **Potential Solution:** Utilize python threads to support multiple clients.
 * **Buffer Size / Output Limits:**
   * **Limitation:** If command output exceeds 1024 bytes (or the socket buffer), it may truncate output or block.
@@ -38,7 +38,7 @@ To run this project, you need:
 
 * **Python 3.10** or higher.
 * A `.env` file containing `HOST` and `PORT`.
-* Install dependency from `requirements.txt` (used for `python-dotenv`).
+* Install dependency from `requirements.txt` (used for environment variable loading).
 * (Optional) VS Code or Terminal.
 
 ## **4\. Step-by-Step Run Guide**
@@ -55,7 +55,8 @@ PORT=8080 # Or any available port
 
 Notes:
 
-* If client and server run on different machines, set `HOST` to the server machine's local IP address and set `PORT` to the port the server is listening on.
+* If client and server run on different machines, set the client's `HOST` to the server machine's local IP address.
+* Set `PORT` to the same port number used by the server.
 
 Install dependencies:
 
@@ -162,8 +163,8 @@ Support can vary by operating system, shell type, installed tools, and user perm
 **Connection**
 
 * The client connects to the server using TCP
-* Server binds to host and port (from `.env` file) and listens for incoming connection
-* Client connects using same host and port
+* Server binds to all local network interfaces (`0.0.0.0`) on `PORT` (from `.env`) and listens for incoming connection
+* Client connects using `HOST` and `PORT` from `.env`
 * Server acknowledges connection by sending current working directory (CWD) to client
 
 **Message Format**
@@ -183,11 +184,9 @@ Support can vary by operating system, shell type, installed tools, and user perm
 
 * If client disconnects unexpectedly, the server detects a broken socket and closes the session
 * If server shuts down, the client receives no data and prints `"Server disconnected."`
+* After a client session ends, the current server process exits and must be restarted for a new client session
 
 ## **6\. Academic Integrity & References**
-
-Note AI usage if needed
-Add references if needed
 
 * **References:**
   * [TA Tutorials](https://youtube.com/playlist?list=PL-8C2cUhmkO1yWLTCiqf4mFXId73phvdx&si=xMGsZF95e33OEMrb)
